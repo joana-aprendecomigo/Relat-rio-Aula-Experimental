@@ -751,15 +751,25 @@ function gerarBlob(){
 function concluido(){ exportado=true; $('#done').hidden=false; mostrarVista('form'); window.scrollTo({top:0,behavior:'smooth'}); }
 
 let downloads=null;
+function descarregar(blob,nome){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=nome; a.rel='noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
 $('#btnPdf').addEventListener('click',async()=>{
   const blob=gerarBlob(); if(!blob) return;
-  if(!downloads){ toast('Não é possível descarregar ficheiros nesta vista. Abre o site no claude.ai.'); return; }
-  try{ await downloads.save({filename:nomeFicheiro(),data:blob}); concluido(); }
-  catch(e){
-    if(e&&e.code==='declined') return;
-    if(e&&e.code==='rate_limited'){ toast('Já há um pedido de descarga aberto. Confirma-o primeiro.'); return; }
-    toast('Não foi possível descarregar o PDF. Tenta novamente.');
+  const nome=nomeFicheiro();
+  if(downloads){
+    try{ await downloads.save({filename:nome,data:blob}); concluido(); return; }
+    catch(e){
+      if(e&&e.code==='declined') return;
+      if(e&&e.code==='rate_limited'){ toast('Já há um pedido de descarga aberto. Confirma-o primeiro.'); return; }
+    }
   }
+  try{ descarregar(blob,nome); concluido(); }
+  catch(e){ toast('Não foi possível descarregar o PDF. Tenta novamente.'); }
 });
 $('#btnEnviar').addEventListener('click',async()=>{
   const blob=gerarBlob(); if(!blob) return;
@@ -794,7 +804,7 @@ window.addEventListener('resize',agendarPrev);
   if(window.claude && typeof window.claude.use==='function'){
     try{ downloads=await window.claude.use('downloads'); }catch(e){ downloads=null; }
   }
-  if(!downloads) $('#btnPdf').title='Disponível quando o site é aberto no claude.ai';
+
 })();
 </script>
 </body>
