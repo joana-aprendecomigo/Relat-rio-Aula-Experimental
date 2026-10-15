@@ -134,11 +134,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
     <button class="btn primary" id="btnProximo">Começar o próximo relatório</button>
   </div>
 
-  <h1>Relatório de aula experimental</h1>
+  <h1 id="h1Rel">Relatório de aula experimental</h1>
   <p class="lede">Preenche os campos e vê o PDF a ser montado ao lado. Nada fica guardado: ao começar um novo relatório, este desaparece.</p>
 
   <section>
-    <h2>Dados da aula</h2>
+    <h2 id="h2Dados">Dados da aula</h2>
+    <div class="seg" id="segTipo" role="group" aria-label="Tipo de relatório">
+      <button type="button" data-tipo="exp" aria-pressed="true">Aula experimental</button>
+      <button type="button" data-tipo="apoio" aria-pressed="false">Apoio</button>
+    </div>
     <div class="seg" role="group" aria-label="Tipo de aula">
       <button type="button" data-conj="0" aria-pressed="true">Individual</button>
       <button type="button" data-conj="1" aria-pressed="false">Em conjunto</button>
@@ -152,15 +156,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
           <option value="5">5.º ano</option><option value="6">6.º ano</option><option value="7">7.º ano</option><option value="8">8.º ano</option>
           <option value="9">9.º ano</option><option value="10">10.º ano</option><option value="11">11.º ano</option><option value="12">12.º ano</option>
         </select></label>
-      <label class="f"><span>Disciplina(s)</span><input type="text" data-k="disciplina" placeholder="Ex.: Matemática" autocomplete="off"></label>
-      <label class="f"><span>Data da aula</span><input type="date" data-k="data"></label>
-      <label class="f"><span>Professor(a)</span><input type="text" data-k="professor" autocomplete="off"></label>
+      <label class="f" id="fDisc"><span>Disciplina(s)</span><input type="text" data-k="disciplina" placeholder="Ex.: Matemática" autocomplete="off"></label>
+      <label class="f"><span id="lbData">Data da aula</span><input type="date" data-k="data"></label>
+      <label class="f" id="fDataFim" hidden><span>Até</span><input type="date" data-k="dataFim"></label>
+      <label class="f" id="fProf"><span>Professor(a)</span><input type="text" data-k="professor" autocomplete="off"></label>
     </div>
   </section>
 
   <section>
-    <h2>Como correu a aula</h2>
-    <p class="hint">Escreve só o que foi trabalhado na aula, de forma clara para a família.</p>
+    <h2 id="h2Como">Como correu a aula</h2>
+    <p class="hint" id="hintComo">Escreve só o que foi trabalhado na aula, de forma clara para a família.</p>
     <div class="seg" id="segMulti" role="group" aria-label="Número de disciplinas">
       <button type="button" data-multi="0" aria-pressed="true">Uma disciplina</button>
       <button type="button" data-multi="1" aria-pressed="false">Várias disciplinas</button>
@@ -178,7 +183,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
     <label class="f"><span>Mensagem para a família</span><textarea data-k="feedback" style="min-height:120px"></textarea></label>
   </section>
 
-  <section>
+  <section id="secPlano">
     <h2>Plano para as próximas semanas</h2>
     <p class="hint">Dois ou três objetivos concretos para o aluno. Mostram à família o que pode mudar com o acompanhamento.</p>
     <label class="f"><span>Objetivo 1</span><input type="text" data-plano="0" placeholder="Ex.: Dominar as equações com frações" autocomplete="off"></label>
@@ -187,8 +192,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
   </section>
 
   <section>
-    <h2>Opinião do aluno <em style="font-weight:400;color:var(--navy-soft);font-style:normal">(opcional)</em></h2>
-    <p class="hint">De 0 a 5, como achou a aula. Se não perguntaste, deixa em branco.</p>
+    <h2 id="h2Nota">Opinião do aluno <em style="font-weight:400;color:var(--navy-soft);font-style:normal">(opcional)</em></h2>
+    <p class="hint" id="hintNota">De 0 a 5, como achou a aula. Se não perguntaste, deixa em branco.</p>
     <div id="notaUm">
     <div class="score" id="score"></div>
     <label class="f"><span>Comentário do aluno <em>(opcional)</em></span><input type="text" data-k="comentario" autocomplete="off"></label>
@@ -257,8 +262,9 @@ function grupoDe(n){ n=+n; if(!n) return null; if(n<=4) return 'c1'; if(n<=9) re
 function hoje(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function novoAluno(){ return {nome:'',bem:'',melhorar:'',nota:null,comentario:''}; }
 function juntar(ns){ return ns.length<2?(ns[0]||''):ns.slice(0,-1).join(', ')+' e '+ns[ns.length-1]; }
-function vazio(){ return {aluno:'',anoN:'',disciplina:'',data:hoje(),professor:'',multi:false,bem:'',melhorar:'',
-  secoes:[{nome:'',bem:'',melhorar:''},{nome:'',bem:'',melhorar:''}],feedback:'',plano:['','',''],nota:null,comentario:'',conjunto:false,alunos:[novoAluno(),novoAluno()],
+function novaSecao(){ return {nome:'',professor:'',bem:'',melhorar:''}; }
+function vazio(){ return {tipo:'exp',aluno:'',anoN:'',disciplina:'',data:hoje(),dataFim:'',professor:'',multi:false,bem:'',melhorar:'',
+  secoes:[novaSecao(),novaSecao()],feedback:'',plano:['','',''],nota:null,comentario:'',conjunto:false,alunos:[novoAluno(),novoAluno()],
   servicos:[],notaServicos:'',promoOn:false,promoTitulo:'',promoTexto:''}; }
 let S = vazio();
 let exportado = false;
@@ -470,6 +476,9 @@ function escalaGrupo(r,x,yTop,w,titulo,als){
   return yTop-h;
 }
 function dataPT(iso){ if(!iso) return ''; const [a,m,d]=iso.split('-'); return `${d}/${m}/${a}`; }
+const ehApoio=()=>S.tipo==='apoio';
+function secoesUteis(){ return S.secoes.filter(s=>s.nome.trim()||s.professor.trim()||s.bem.trim()||s.melhorar.trim()); }
+function profsApoio(){ const l=[]; secoesUteis().forEach(s=>{ const n=s.professor.trim(); if(n&&!l.includes(n)) l.push(n); }); return l; }
 function dados(){
   const ciclo=cicloDe(S.anoN);
   const anoTxt = S.anoN ? `${S.anoN}.º ano (${ciclo})` : '';
@@ -477,8 +486,13 @@ function dados(){
   const grupo=S.conjunto?S.alunos.map(a=>({...a,nome:a.nome.trim(),comentario:a.comentario.trim()})).filter(a=>a.nome||a.bem.trim()||a.melhorar.trim()):[];
   const alunoTxt=S.conjunto?juntar(grupo.map(a=>a.nome).filter(Boolean)):S.aluno.trim();
   const curto=S.conjunto?juntar(grupo.map(a=>a.nome.split(' ')[0]).filter(Boolean)):S.aluno.trim().split(' ')[0];
-  return {conjunto:S.conjunto,grupo,curto,aluno:alunoTxt,ano:anoTxt,disciplina:S.disciplina.trim(),data:dataPT(S.data),professor:S.professor.trim(),
-    multi:S.multi,bem:S.bem,melhorar:S.melhorar,secoes:S.secoes.filter(s=>s.nome.trim()||s.bem.trim()||s.melhorar.trim()),
+  const apoio=ehApoio(), porDisc=apoio&&!S.conjunto;
+  const profs=porDisc?profsApoio():[];
+  const discTxt=porDisc?juntar(secoesUteis().map(s=>s.nome.trim()).filter(Boolean)):S.disciplina.trim();
+  const periodo=apoio?[dataPT(S.data),dataPT(S.dataFim)].filter(Boolean).join(' a '):dataPT(S.data);
+  return {apoio,profs,periodo,conjunto:S.conjunto,grupo,curto,aluno:alunoTxt,ano:anoTxt,disciplina:discTxt,data:dataPT(S.data),
+    professor:porDisc?juntar(profs):S.professor.trim(),
+    multi:porDisc?true:S.multi,bem:S.bem,melhorar:S.melhorar,secoes:secoesUteis(),
     feedback:S.feedback,plano:S.plano.map(limpar).filter(Boolean),nota:S.nota,comentario:S.comentario.trim(),progs,notaServicos:limpar(S.notaServicos),
     promo:S.promoOn&&(S.promoTitulo.trim()||S.promoTexto.trim())?{titulo:S.promoTitulo.trim(),texto:S.promoTexto}:null};
 }
@@ -491,17 +505,20 @@ function montar(d){
   const ww=iw+6+largura('parágrafo','Manrope-ExtraBold',13);
   txt(r,'CENTRO DE ESTUDOS',x+ww+10,y+1,'Manrope-SemiBold',8,T.FAINT);
   y-=22;
-  txt(r,'Relatório de aula experimental',x,y,'Manrope-ExtraBold',21,T.NAVY); y-=14;
+  txt(r,d.apoio?'Relatório de apoio':'Relatório de aula experimental',x,y,'Manrope-ExtraBold',21,T.NAVY); y-=14;
   r.push({t:'ln',x1:x,y1:y,x2:x+CONTENT_W,y2:y,color:T.TERRA,lw:1.4}); y-=22;
   card(r,x,y,CONTENT_W,40,T.WHITE,T.CARD_BORDER);
   { let nm=d.aluno||(d.conjunto?'Nomes dos alunos':'Nome do aluno'), sz=12; const maxW=CONTENT_W*0.62;
     while(sz>9 && largura(nm,'Manrope-Bold',sz)>maxW) sz-=0.5;
     if(largura(nm,'Manrope-Bold',sz)>maxW) nm=partir(nm,'Manrope-Bold',sz,maxW-12)[0]+'…';
     txt(r,nm,x+14,y-17,'Manrope-Bold',sz,d.aluno?T.NAVY:T.FAINT); }
-  const meta=[d.ano,d.disciplina,d.conjunto?'Aula em conjunto':''].filter(Boolean).join('   ·   ');
+  const meta=[d.ano,d.disciplina,d.conjunto?(d.apoio?'Apoio em conjunto':'Aula em conjunto'):''].filter(Boolean).join('   ·   ');
   txt(r,meta||'Ano   ·   Disciplina',x+14,y-31,'Manrope',9.5,meta?T.SOFT:T.FAINT);
-  txt(r,'Data: '+(d.data||''),x+CONTENT_W-14,y-17,'Manrope',9.5,T.SOFT,'right');
-  txt(r,'Professor(a): '+(d.professor||''),x+CONTENT_W-14,y-31,'Manrope',9.5,T.SOFT,'right');
+  const cortar=(t,font,size,maxW)=>largura(t,font,size)<=maxW?t:partir(t,font,size,maxW-largura('…',font,size))[0]+'…';
+  const maxDir=CONTENT_W*0.36;
+  txt(r,cortar((d.apoio?'Período: ':'Data: ')+(d.periodo||''),'Manrope',9.5,maxDir),x+CONTENT_W-14,y-17,'Manrope',9.5,T.SOFT,'right');
+  const rotProf=d.profs.length>1?'Professores: ':'Professor(a): ';
+  txt(r,cortar(rotProf+(d.professor||''),'Manrope',9.5,maxDir),x+CONTENT_W-14,y-31,'Manrope',9.5,T.SOFT,'right');
   y-=50;
 
   const por=(fn,gap)=>{
@@ -515,8 +532,9 @@ function montar(d){
     por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que correu bem',d.grupo.map(a=>[a.nome||'Aluno',a.bem])),0);
     por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que ficou por trabalhar',d.grupo.map(a=>[a.nome||'Aluno',a.melhorar])),7);
   } else if(!d.conjunto && d.multi && d.secoes.length){
-    por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que correu bem',d.secoes.map(s=>[s.nome.trim()||'Disciplina',s.bem])),0);
-    por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que ficou por trabalhar',d.secoes.map(s=>[s.nome.trim()||'Disciplina',s.melhorar])),7);
+    const rot=s=>{ const n=s.nome.trim()||'Disciplina', pr=(s.professor||'').trim(); return pr?n+' · '+pr:n; };
+    por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que correu bem',d.secoes.map(s=>[rot(s),s.bem])),0);
+    por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,d.apoio?'O que falta consolidar':'O que ficou por trabalhar',d.secoes.map(s=>[rot(s),s.melhorar])),7);
   } else {
     por((rr,yy)=>par(rr,x,yy,CONTENT_W,['O que correu bem',d.bem],['O que ficou por trabalhar',d.melhorar]),0);
   }
@@ -524,19 +542,21 @@ function montar(d){
   if(d.plano.length) por((rr,yy)=>planoBloco(rr,x,yy,CONTENT_W,d.plano),7);
   const avaliados=d.grupo.filter(a=>a.nota!==null||a.comentario);
   if(d.conjunto){
-    if(avaliados.length) por((rr,yy)=>escalaGrupo(rr,x,yy,CONTENT_W,'Perguntámos aos alunos como foi a aula. Estas foram as pontuações (0 a 5)',avaliados),7);
+    if(avaliados.length) por((rr,yy)=>escalaGrupo(rr,x,yy,CONTENT_W,d.apoio?'Perguntámos aos alunos como correu este período de apoio. Estas foram as pontuações (0 a 5)':'Perguntámos aos alunos como foi a aula. Estas foram as pontuações (0 a 5)',avaliados),7);
   } else if(d.nota!==null || d.comentario){
-    por((rr,yy)=>escala(rr,x,yy,CONTENT_W,'Perguntámos ao aluno como foi a aula. Esta foi a pontuação (0 a 5)',d.nota,d.comentario),7);
+    por((rr,yy)=>escala(rr,x,yy,CONTENT_W,d.apoio?'Perguntámos ao aluno como correu este período de apoio. Esta foi a pontuação (0 a 5)':'Perguntámos ao aluno como foi a aula. Esta foi a pontuação (0 a 5)',d.nota,d.comentario),7);
   }
-  por((rr,yy)=>ofertaBloco(rr,x,yy,CONTENT_W),7);
-  por((rr,yy)=>ctaBloco(rr,x,yy,CONTENT_W,d.curto,d.professor),7);
+  if(!d.apoio){
+    por((rr,yy)=>ofertaBloco(rr,x,yy,CONTENT_W),7);
+    por((rr,yy)=>ctaBloco(rr,x,yy,CONTENT_W,d.curto,d.professor),7);
+  }
   if(d.progs.length){
     if(!topo) y-=5;
     por((rr,yy)=>servicos(rr,x,yy,CONTENT_W,d.progs,d.notaServicos),7);
   }
   if(d.promo) por((rr,yy)=>promo(rr,x,yy,CONTENT_W,d.promo.titulo,d.promo.texto),10);
 
-  r.pages.forEach(p=>p.push({t:'tx',s:'Próximo Parágrafo · Relatório de aula experimental',x:PAGE_W/2,y:28,font:'Manrope',size:8,color:T.FAINT,align:'center'}));
+  r.pages.forEach(p=>p.push({t:'tx',s:'Próximo Parágrafo · '+(d.apoio?'Relatório de apoio':'Relatório de aula experimental'),x:PAGE_W/2,y:28,font:'Manrope',size:8,color:T.FAINT,align:'center'}));
   return r;
 }
 
@@ -556,7 +576,7 @@ function paraPdf(rec){
       else if(o.t==='im'){ doc.addImage(ICON_DATA,'PNG',o.x,PAGE_H-o.y-o.h,o.w,o.h); }
     }
   });
-  doc.setProperties({title:'Relatório de aula experimental',author:'Próximo Parágrafo'});
+  doc.setProperties({title:ehApoio()?'Relatório de apoio':'Relatório de aula experimental',author:'Próximo Parágrafo'});
   return doc;
 }
 
@@ -594,10 +614,24 @@ const $=s=>document.querySelector(s);
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 function aplicarModo(){
-  const c=S.conjunto;
+  const c=S.conjunto, ap=ehApoio();
   document.querySelectorAll('[data-conj]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.conj==='1')===c)));
-  $('#alunoUm').hidden=c; $('#alunosGrupo').hidden=!c; $('#segMulti').hidden=c;
-  $('#single').hidden=c||S.multi; $('#multi').hidden=c||!S.multi; $('#grupoComo').hidden=!c;
+  document.querySelectorAll('[data-tipo]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.tipo==='apoio')===ap)));
+  $('#h1Rel').textContent = ap?'Relatório de apoio':'Relatório de aula experimental';
+  $('#h2Dados').textContent = ap?'Dados do apoio':'Dados da aula';
+  $('#lbData').textContent = ap?'De':'Data da aula';
+  $('#fDataFim').hidden = !ap;
+  const porDisc = ap && !c;
+  $('#fDisc').hidden = porDisc;
+  $('#fProf').hidden = porDisc;
+  $('#h2Como').textContent = ap?'Como correu o apoio':'Como correu a aula';
+  $('#hintComo').textContent = ap
+    ? 'Uma secção por disciplina, com o professor que a acompanhou. Escreve de forma clara para a família.'
+    : 'Escreve só o que foi trabalhado na aula, de forma clara para a família.';
+  $('#hintNota').textContent = ap?'De 0 a 5, como o aluno achou este período de apoio. Se não perguntaste, deixa em branco.':'De 0 a 5, como achou a aula. Se não perguntaste, deixa em branco.';
+  $('#alunoUm').hidden=c; $('#alunosGrupo').hidden=!c; $('#segMulti').hidden=c||porDisc;
+  const multi = porDisc || S.multi;
+  $('#single').hidden=c||multi; $('#multi').hidden=c||!multi; $('#grupoComo').hidden=!c;
   $('#notaUm').hidden=c; $('#grupoNota').hidden=!c;
 }
 function desenharGrupo(){
@@ -622,7 +656,8 @@ function desenharGrupo(){
   aplicarModo();
 }
 function desenharMulti(){
-  $('#single').hidden=S.multi; $('#multi').hidden=!S.multi;
+  const ap=ehApoio()&&!S.conjunto, multi=ap||S.multi;
+  $('#single').hidden=multi; $('#multi').hidden=!multi;
   document.querySelectorAll('[data-multi]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.multi==='1')===S.multi)));
   $('#multi').innerHTML = S.secoes.map((s,i)=>`
     <div class="subj">
@@ -630,8 +665,9 @@ function desenharMulti(){
         <label class="f"><span>Disciplina</span><input type="text" data-sec="${i}" data-f="nome" value="${esc(s.nome)}" placeholder="Ex.: Português" autocomplete="off"></label>
         ${S.secoes.length>1?`<button type="button" class="link danger" data-delsec="${i}" style="margin-bottom:18px">Remover</button>`:''}
       </div>
+      ${ap?`<label class="f"><span>Professor(a)</span><input type="text" data-sec="${i}" data-f="professor" value="${esc(s.professor)}" autocomplete="off"></label>`:''}
       <label class="f"><span>O que correu bem</span><textarea data-sec="${i}" data-f="bem">${esc(s.bem)}</textarea></label>
-      <label class="f" style="margin-bottom:0"><span>O que ficou por trabalhar</span><textarea data-sec="${i}" data-f="melhorar">${esc(s.melhorar)}</textarea></label>
+      <label class="f" style="margin-bottom:0"><span>${ap?'O que falta consolidar':'O que ficou por trabalhar'}</span><textarea data-sec="${i}" data-f="melhorar">${esc(s.melhorar)}</textarea></label>
     </div>`).join('') + `<button type="button" class="link" id="addSec">Adicionar disciplina</button>`;
 }
 function desenharNota(){
@@ -694,11 +730,12 @@ form.addEventListener('change',e=>{
 form.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.multi!==undefined){ S.multi=b.dataset.multi==='1'; desenharMulti(); aplicarModo(); }
-  else if(b.dataset.conj!==undefined){ S.conjunto=b.dataset.conj==='1'; aplicarModo(); }
+  else if(b.dataset.tipo!==undefined){ S.tipo=b.dataset.tipo==='apoio'?'apoio':'exp'; desenharMulti(); aplicarModo(); }
+  else if(b.dataset.conj!==undefined){ S.conjunto=b.dataset.conj==='1'; desenharMulti(); aplicarModo(); }
   else if(b.id==='addAl'){ S.alunos.push(novoAluno()); desenharGrupo(); }
   else if(b.dataset.delal!==undefined){ S.alunos.splice(+b.dataset.delal,1); desenharGrupo(); }
   else if(b.dataset.gnota!==undefined){ const [i,n]=b.dataset.gnota.split(':'); S.alunos[+i].nota=n==='x'?null:+n; desenharGrupo(); }
-  else if(b.id==='addSec'){ S.secoes.push({nome:'',bem:'',melhorar:''}); desenharMulti(); }
+  else if(b.id==='addSec'){ S.secoes.push(novaSecao()); desenharMulti(); }
   else if(b.dataset.delsec!==undefined){ S.secoes.splice(+b.dataset.delsec,1); desenharMulti(); }
   else if(b.dataset.nota!==undefined){ S.nota = b.dataset.nota==='x'?null:+b.dataset.nota; desenharNota(); }
   else if(b.dataset.delsvc!==undefined){ S.servicos.splice(+b.dataset.delsvc,1); desenharServicos(); }
@@ -721,9 +758,17 @@ $('#btnNovo').addEventListener('click',()=>{
 
 /* ---------- validação ---------- */
 function emFalta(){
-  const f=[];
-  const req=[...(S.conjunto?[]:[['aluno','nome do aluno']]),['anoN','ano'],['disciplina','disciplina'],['professor','professor(a)'],['feedback','feedback e conselho']];
-  req.forEach(([k,n])=>{ if(!String(S[k]).trim()){ f.push(n); document.querySelector(`[data-k="${k}"]`)?.classList.add('missing'); } });
+  const f=[], ap=ehApoio();
+  const req=[...(S.conjunto?[]:[['aluno','nome do aluno']]),['anoN','ano'],
+    ...(ap?[['data','data de início'],['dataFim','data de fim']]:[['disciplina','disciplina'],['professor','professor(a)']]),
+    ['feedback','feedback e conselho']];
+  req.forEach(([k,n])=>{ if(!String(S[k]??'').trim()){ f.push(n); document.querySelector(`[data-k="${k}"]`)?.classList.add('missing'); } });
+  if(ap && S.data && S.dataFim && S.dataFim<S.data){ f.push('uma data de fim posterior à de início'); document.querySelector('[data-k="dataFim"]')?.classList.add('missing'); }
+  if(ap && !S.conjunto){
+    const ss=secoesUteis();
+    if(!ss.length || ss.some(s=>!s.nome.trim()||!s.professor.trim()||!s.bem.trim()||!s.melhorar.trim())) f.push('disciplina, professor(a) e textos de cada disciplina');
+    return f;
+  }
   if(S.conjunto){
     const g=S.alunos.filter(a=>a.nome.trim()||a.bem.trim()||a.melhorar.trim());
     if(g.length<2) f.push('pelo menos dois alunos');
@@ -741,7 +786,7 @@ let tToast=null;
 function toast(m){ const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(tToast); tToast=setTimeout(()=>t.hidden=true,5000); }
 function nomeFicheiro(){
   const n=(S.conjunto?S.alunos.map(a=>a.nome.trim().split(' ')[0]).filter(Boolean).join(' '):S.aluno.trim()).normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  return `Relatorio-aula-experimental${n?'-'+n:''}.pdf`;
+  return `${ehApoio()?'Relatorio-apoio':'Relatorio-aula-experimental'}${n?'-'+n:''}.pdf`;
 }
 function gerarBlob(){
   const f=emFalta();
