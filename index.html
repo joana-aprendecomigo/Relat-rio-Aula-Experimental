@@ -124,7 +124,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
 .c-rot{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--navy-faint);font-weight:700}
 .c-txt{font-size:13px;color:var(--navy-soft);line-height:1.45}
 .c-txt b{color:var(--navy)}
-.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:22px 0}
+.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0 26px}
+.cartoes-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 .cartao{display:flex;flex-direction:column;gap:8px;text-align:left;padding:18px;border:1px solid var(--line);
   border-radius:14px;background:var(--panel);cursor:pointer}
 .cartao:hover{border-color:var(--terra)}
@@ -161,7 +162,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
 <div class="inicio" id="inicio">
   <div class="inicio-box">
     <h1>Relatórios e planos</h1>
-    <p class="lede">Três documentos diferentes, feitos neste mesmo sítio. Escolhe em baixo o que vais escrever.</p>
+    <p class="lede">Quatro caminhos, no mesmo sítio: três documentos para escrever de novo e a revisão de um plano já feito. Escolhe em baixo.</p>
 
     <ol class="passos">
       <li><b>Escolhes</b> o tipo de documento.</li>
@@ -212,16 +213,31 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
             <span>Cada objetivo em quatro partes: a área, o que queremos alcançar, como lá chegamos e até quando</span>
             <span>Mensagem para a família</span>
           </span></span>
-        <span class="c-bloco"><span class="c-rot">Rever o plano mais tarde</span>
-          <span class="c-txt">Em dezembro, carrega em <b>Abrir PDF</b>, escolhe o PDF do plano e liga a <b>Revisão</b>. Marcas cada objetivo como alcançado, em curso ou a retomar, e sai um PDF novo que mostra a evolução desde o início.</span></span>
+        <span class="c-bloco"><span class="c-rot">O que a família recebe</span>
+          <span class="c-txt">O que vamos trabalhar com o aluno e onde queremos chegar, com um prazo para cada objetivo. Mais tarde faz-se o ponto da situação na opção 4.</span></span>
         <span class="c-ir">Começar plano de objetivos</span>
+      </button>
+
+      <button type="button" class="cartao" data-abrir="revisao">
+        <span class="c-tit">4. Revisão de um plano de objetivos</span>
+        <span class="c-quando">Quando chega a altura de fazer o ponto da situação de um plano já feito, por exemplo em dezembro ou no fim de cada período.</span>
+        <span class="c-bloco"><span class="c-rot">Como funciona</span>
+          <span class="c-lista">
+            <span>Escolhes o PDF do plano que foi feito no início</span>
+            <span>Os campos voltam a ficar preenchidos e a revisão fica logo ligada</span>
+            <span>Marcas cada objetivo como alcançado, em curso ou a retomar, e escreves o balanço</span>
+            <span>Mensagem para a família</span>
+          </span></span>
+        <span class="c-bloco"><span class="c-rot">O que a família recebe</span>
+          <span class="c-txt">Um PDF com os objetivos combinados no início e o ponto da situação de hoje, para ver a evolução.</span></span>
+        <span class="c-ir">Escolher o PDF do plano</span>
       </button>
     </div>
 
     <h2 class="sec-tit">Duas coisas importantes</h2>
     <div class="inicio-nota">
       <p><b>Nada fica guardado nesta página.</b> Ao fechar ou ao começar outro documento, o que escreveste desaparece. Não há base de dados nem contas: os dados do aluno não ficam em lado nenhum a não ser no PDF que descarregas.</p>
-      <p><b>O PDF serve de arquivo e de rascunho.</b> Cada PDF criado aqui leva lá dentro, de forma invisível, tudo o que escreveste. Por isso, carregando em <b>Abrir PDF</b> no topo da página, os campos voltam a ficar preenchidos: para corrigir um erro, para reaproveitar um relatório ou para rever um plano meses depois. Guardem sempre o PDF na pasta do aluno.</p>
+      <p><b>O PDF serve de arquivo e de rascunho.</b> Cada PDF criado aqui leva lá dentro, de forma invisível, tudo o que escreveste. Por isso, carregando em <b>Abrir PDF</b> no topo da página, podes escolher qualquer PDF feito aqui e os campos voltam a ficar preenchidos: para emendar um erro num documento já enviado, ou para partir do relatório do mês passado e escrever o deste mês. Guardem sempre o PDF na pasta do aluno.</p>
     </div>
   </div>
 </div>
@@ -234,15 +250,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
   </div>
 
   <h1 id="h1Rel">Relatório de aula experimental</h1>
-  <p class="lede">Preenche os campos e vê o PDF a ser montado ao lado. Nada fica guardado: ao começar um novo relatório, este desaparece.</p>
+  <p class="lede" id="ledeForm">Preenche os campos e vê o PDF a ser montado ao lado. Nada fica guardado: o PDF que descarregas é o único arquivo.</p>
 
   <section>
     <h2 id="h2Dados">Dados da aula</h2>
-    <div class="seg" id="segTipo" role="group" aria-label="Tipo de relatório">
-      <button type="button" data-tipo="exp" aria-pressed="true">Aula experimental</button>
-      <button type="button" data-tipo="apoio" aria-pressed="false">Apoio</button>
-      <button type="button" data-tipo="plano" aria-pressed="false">Plano de objetivos</button>
-    </div>
     <div class="seg" id="segConj" role="group" aria-label="Tipo de aula">
       <button type="button" data-conj="0" aria-pressed="true">Individual</button>
       <button type="button" data-conj="1" aria-pressed="false">Em conjunto</button>
@@ -758,7 +769,6 @@ function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 function aplicarModo(){
   const pl=ehPlano(), c=S.conjunto&&!pl, ap=ehApoio();
   document.querySelectorAll('[data-conj]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.conj==='1')===c)));
-  document.querySelectorAll('[data-tipo]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tipo===S.tipo||(b.dataset.tipo==='exp'&&S.tipo!=='apoio'&&S.tipo!=='plano'))));
   $('#h1Rel').textContent = pl?'Plano de objetivos':(ap?'Relatório de apoio':'Relatório de aula experimental');
   $('#h2Dados').textContent = pl?'Dados do plano':(ap?'Dados do apoio':'Dados da aula');
   $('#lbData').textContent = (ap||pl)?'De':'Data da aula';
@@ -896,7 +906,6 @@ form.addEventListener('change',e=>{
 form.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.dataset.multi!==undefined){ S.multi=b.dataset.multi==='1'; desenharMulti(); aplicarModo(); }
-  else if(b.dataset.tipo!==undefined){ S.tipo=b.dataset.tipo; desenharMulti(); desenharObjetivos(); aplicarModo(); }
   else if(b.dataset.rev!==undefined){ S.revisao=b.dataset.rev==='1'; desenharObjetivos(); aplicarModo(); }
   else if(b.id==='addObj'){ S.objetivos.push(novoObjetivo()); desenharObjetivos(); }
   else if(b.dataset.delobj!==undefined){ S.objetivos.splice(+b.dataset.delobj,1); desenharObjetivos(); }
@@ -945,15 +954,18 @@ async function abrirPlano(ficheiro){
     novo.secoes=(Array.isArray(e.secoes)&&e.secoes.length?e.secoes:base.secoes).map(o=>({...novaSecao(),...o}));
     novo.alunos=(Array.isArray(e.alunos)&&e.alunos.length?e.alunos:base.alunos).map(o=>({...novoAluno(),...o}));
     S=novo; exportado=false;
+    if(abrirParaRevisao && novo.tipo==='plano'){ S.revisao=true; if(!S.dataRevisao) S.dataRevisao=hoje(); }
     escreverCampos(); $('#done').hidden=true;
     entrarEm(novo.tipo);
+    if(abrirParaRevisao && novo.tipo!=='plano') toast('Este PDF não é um plano de objetivos, por isso não há revisão a fazer. Podes à mesma corrigir o que precisares.');
     toast(S.tipo==='plano'?'Plano carregado. Liga a revisão para registares como correu cada objetivo.':'Relatório carregado.');
   }catch(err){ toast('Não foi possível ler este PDF. Usa um PDF criado por esta aplicação.'); }
 }
 $('#btnAbrir').addEventListener('click',()=>$('#ficheiroPlano').click());
 $('#ficheiroPlano').addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];
-  if(f) abrirPlano(f);
+  if(f) abrirPlano(f).finally(()=>{ abrirParaRevisao=false; });
+  else abrirParaRevisao=false;
   e.target.value='';
 });
 
@@ -1067,6 +1079,11 @@ function entrarEm(tipo){
   mostrarVista('form'); window.scrollTo({top:0});
 }
 document.querySelectorAll('[data-comecar]').forEach(b=>b.addEventListener('click',()=>entrarEm(b.dataset.comecar)));
+let abrirParaRevisao=false;
+document.querySelectorAll('[data-abrir]').forEach(b=>b.addEventListener('click',()=>{
+  abrirParaRevisao = b.dataset.abrir==='revisao';
+  $('#ficheiroPlano').click();
+}));
 $('#btnInicio').addEventListener('click',()=>{
   if(temConteudo() && !exportado && !confirm('Este documento ainda não foi exportado. Queres voltar ao início e apagá-lo?')) return;
   S=vazio(); exportado=false; escreverCampos(); $('#done').hidden=true; mostrarInicio();
