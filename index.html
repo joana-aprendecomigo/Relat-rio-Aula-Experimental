@@ -109,8 +109,15 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
     padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));gap:8px}
   .tabs button{flex:1}
   .brand span{display:none}
-  .top{flex-wrap:nowrap;padding:8px 12px;gap:8px}
+  .top{flex-wrap:wrap;padding:8px 12px;gap:8px}
   .top .btn{padding:8px 10px;font-size:13px}
+  .top .brand{order:1;margin-right:auto}
+  .top #btnPdf{order:2}
+  .top #btnInicio{order:3}
+  .top #btnAbrir{order:4}
+  .top #btnNovo{order:5}
+  .top #btnEnviar{order:6}
+  .top #btnInicio,.top #btnAbrir,.top #btnNovo,.top #btnEnviar{flex:1 1 auto}
   .brand b{font-size:15px}
   .grid2{grid-template-columns:1fr}
 }
@@ -124,8 +131,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
 .c-rot{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--navy-faint);font-weight:700}
 .c-txt{font-size:13px;color:var(--navy-soft);line-height:1.45}
 .c-txt b{color:var(--navy)}
-.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin:12px 0 26px}
-.cartoes-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.cartoes{display:grid;grid-template-columns:1fr;gap:14px;margin:12px 0 26px}
+@media (min-width:760px){ .cartoes{grid-template-columns:1fr 1fr} }
 .cartao{display:flex;flex-direction:column;gap:8px;text-align:left;padding:18px;border:1px solid var(--line);
   border-radius:14px;background:var(--panel);cursor:pointer}
 .cartao:hover{border-color:var(--terra)}
@@ -277,6 +284,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--terra);outline:none;b
   <section id="secComo">
     <h2 id="h2Como">Como correu a aula</h2>
     <p class="hint" id="hintComo">Escreve só o que foi trabalhado na aula, de forma clara para a família.</p>
+    <details class="ajuda">
+      <summary>Ver um exemplo preenchido</summary>
+      <div class="ajuda-corpo">
+        <p><b>O que correu bem</b><br>Trabalhámos equações do primeiro grau. O João percebeu depressa a regra de passar termos para o outro lado e resolveu sozinho os três últimos exercícios, incluindo um com parênteses.</p>
+        <p><b>O que ficou por trabalhar</b><br>Ficaram por treinar as equações com frações. Ao verificar as soluções, o João salta a substituição na equação original, o que o impede de dar pelos próprios erros.</p>
+        <p class="ajuda-nota">Escreve o que foi mesmo feito na aula, com exemplos concretos, e não apreciações gerais como "esteve bem". A família percebe melhor o trabalho e nota que foi escrito para o filho dela.</p>
+      </div>
+    </details>
     <div class="seg" id="segMulti" role="group" aria-label="Número de disciplinas">
       <button type="button" data-multi="0" aria-pressed="true">Uma disciplina</button>
       <button type="button" data-multi="1" aria-pressed="false">Várias disciplinas</button>
@@ -361,40 +376,11 @@ const ICON_DATA = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAADBCAYAAAB
 const ICON_RATIO = 288/193;
 
 /* ---------- tokens da marca (PDF) ---------- */
-const T = {NAVY:'#162a4f',SOFT:'#5a647d',FAINT:'#a6b2c9',TERRA:'#d1642b',TERRA_DK:'#8a3e17',SKY:'#e7eefb',CARD_BG:'#fbfcfe',CARD_BORDER:'#e3e8f0',BG:'#f7f9fe',WHITE:'#ffffff',PROMO:'#c0392b',OK:'#2f7a4f'};
+const T = {NAVY:'#162a4f',SOFT:'#5a647d',FAINT:'#a6b2c9',TERRA:'#d1642b',TERRA_DK:'#8a3e17',SKY:'#e7eefb',CARD_BG:'#fbfcfe',CARD_BORDER:'#e3e8f0',BG:'#f7f9fe',WHITE:'#ffffff',OK:'#2f7a4f'};
 const PAGE_W = 595.2756, PAGE_H = 841.8898, MARGIN = 40, CONTENT_W = PAGE_W - MARGIN*2, RADIUS = 10;
 const WEIGHT = {'Manrope':400,'Manrope-SemiBold':600,'Manrope-Bold':700,'Manrope-ExtraBold':800};
 
-/* ---------- preços (setembro 2026 a 2027) ---------- */
-const CATALOGO = {
-  c1: [
-    {key:'apoio',nome:'Programa Apoio (98 €/mês)',preco:'98 €/mês',itens:['Apoio ao estudo por turmas','Comunidade Apoio+','Banco de exercícios e atividades','Relatório de progresso']},
-    {key:'acomp',nome:'Programa Acompanhamento+ (170 €/mês)',preco:'170 €/mês',itens:['Tudo o que inclui o Programa Apoio','Explicação individual, 1x por semana']},
-  ],
-  c23: [
-    {key:'apoio',nome:'Programa Apoio (98 €/mês)',preco:'98 €/mês',itens:['Apoio ao estudo, 3x por semana','Banco de exercícios e atividades','Relatório de progresso']},
-    {key:'rotina',nome:'Programa Rotina (120 €/mês, recomendado)',preco:'120 €/mês',itens:['Apoio ao estudo ilimitado','Método de estudo, 1x por semana','Organização semanal','Comunidade Apoio+','Banco de exercícios e atividades','Relatório de progresso']},
-    {key:'acomp',nome:'Programa Acompanhamento+ (180 €/mês)',preco:'180 €/mês',itens:['Tudo o que inclui o Programa Rotina','Explicação individual, 1x por semana']},
-  ],
-  sec: [
-    {key:'duo',nome:'Programa Duo',preco:'68 € ou 130 €/mês',itens:['Aulas em par, na disciplina escolhida','1x por semana: 68 €/mês','2x por semana: 130 €/mês']},
-    {key:'acomp',nome:'Programa Acompanhamento+',preco:'115 € ou 210 €/mês',itens:['Aulas só para o aluno, na disciplina escolhida','Comunidade Apoio+','Banco de exercícios e atividades','Relatório de progresso','1x por semana: 115 €/mês','2x por semana: 210 €/mês']},
-  ],
-};
-const BANCO = {
-  basico: [
-    {key:'bh-ind',label:'Banco de horas, individual',preco:'desde 80 €',tipo:'individuais',precos:'4h (80 €), 8h (150 €) ou 12h (215 €)'},
-    {key:'bh-par',label:'Banco de horas, em pares',preco:'desde 55 €',tipo:'em pares',precos:'4h (55 €), 8h (98 €) ou 12h (142 €)'},
-  ],
-  sec: [
-    {key:'bh-ind',label:'Banco de horas, individual (período normal)',preco:'desde 127 €',tipo:'individuais',precos:'4h (127 €), 8h (247 €) ou 12h (368 €)'},
-    {key:'bh-ind-ex',label:'Banco de horas, individual (exames)',preco:'desde 80 €',tipo:'individuais',precos:'4h (80 €), 8h (153 €) ou 12h (227 €)'},
-    {key:'bh-par',label:'Banco de horas, em pares (período normal)',preco:'desde 120 €',tipo:'em pares',precos:'4h (120 €), 8h (234 €) ou 12h (348 €)'},
-    {key:'bh-par-ex',label:'Banco de horas, em pares (exames)',preco:'desde 75 €',tipo:'em pares',precos:'4h (75 €), 8h (145 €) ou 12h (214 €)'},
-  ],
-};
 function cicloDe(n){ n=+n; if(!n) return null; if(n<=4) return '1.º ciclo'; if(n<=6) return '2.º ciclo'; if(n<=9) return '3.º ciclo'; return 'Secundário'; }
-function grupoDe(n){ n=+n; if(!n) return null; if(n<=4) return 'c1'; if(n<=9) return 'c23'; return 'sec'; }
 
 /* ---------- estado (só em memória) ---------- */
 function hoje(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -407,10 +393,9 @@ const PRAZOS=['1.º período','2.º período','3.º período','Final do ano leti
 function vazio(){ return {tipo:'exp',aluno:'',anoN:'',disciplina:'',data:hoje(),dataFim:'',professor:'',multi:false,bem:'',melhorar:'',
   secoes:[novaSecao(),novaSecao()],feedback:'',plano:['','',''],conjunto:false,alunos:[novoAluno(),novoAluno()],
   partida:'',objetivos:[novoObjetivo(),novoObjetivo()],revisao:false,dataRevisao:'',notaRevisao:'',
-  servicos:[],notaServicos:'',promoOn:false,promoTitulo:'',promoTexto:''}; }
+}; }
 let S = vazio();
 let exportado = false;
-let uid = 0;
 
 /* ---------- medição de texto ---------- */
 let measureDoc = null;
@@ -478,44 +463,6 @@ function blocoMulti(r,x,yTop,w,titulo,secoes,pad=12){
     ty=linhas(r,sl[i],x+pad,ty,'Manrope',10.5,T.NAVY,13);
     if(i<secoes.length-1) ty-=6;
   });
-  return yTop-h;
-}
-function promo(r,x,yTop,w,titulo,texto){
-  const pad=12;
-  const ls=embrulhar(texto||'','Manrope',9,w-pad*2);
-  const h=pad+11+6+ls.length*12+pad-3;
-  card(r,x,yTop,w,h,T.PROMO,T.PROMO);
-  txt(r,(titulo||'Promoção').toUpperCase(),x+pad,yTop-pad-11+2,'Manrope-Bold',9.5,T.WHITE);
-  let ty=yTop-pad-11-2;
-  for(const l of ls){ ty-=12; if(l) txt(r,l,x+pad,ty,'Manrope',9,'#ffe3da'); }
-  return yTop-h;
-}
-function servicos(r,x,yTop,w,progs,nota){
-  const pad=12, ts=10.5, is=9.3, il=11, gap=16, n=progs.length;
-  const cw=(w-pad*2-gap*(n-1))/n, iw=cw-12;
-  const tl=[], il_=[]; let colsH=0;
-  progs.forEach(p=>{
-    const t=partir(p.nome||'-','Manrope-Bold',ts,cw); tl.push(t);
-    let h=t.length*12+5; const per=[];
-    p.itens.forEach(it=>{ const ls=partir(it,'Manrope',is,iw); per.push(ls); h+=ls.length*il+2; });
-    il_.push(per); colsH=Math.max(colsH,h);
-  });
-  const nt = nota ? embrulhar('Nota: '+nota,'Manrope',10.5,w-pad*2) : [];
-  const h=pad+12+5+colsH+(nt.length?nt.length*14+14:0)+pad;
-  card(r,x,yTop,w,h);
-  let ty=yTop-pad-9;
-  txt(r,'SERVIÇOS RECOMENDADOS',x+pad,ty,'Manrope-Bold',9,T.TERRA); ty-=17;
-  progs.forEach((p,i)=>{
-    const cx=x+pad+i*(cw+gap); let cy=ty;
-    for(const l of tl[i]){ txt(r,l,cx,cy,'Manrope-Bold',ts,T.NAVY); cy-=12; }
-    cy-=2;
-    il_[i].forEach(ls=>{
-      r.push({t:'ci',x:cx+2.5,y:cy+is*0.32,rad:2.2,fill:T.TERRA});
-      ls.forEach((l,j)=>txt(r,l,cx+11,cy-j*il,'Manrope',is,T.SOFT));
-      cy-=ls.length*il+2;
-    });
-  });
-  if(nt.length) linhas(r,nt,x+pad,yTop-pad-12-5-colsH-14,'Manrope',10.5,T.SOFT,14);
   return yTop-h;
 }
 
@@ -629,11 +576,10 @@ function profsApoio(){ const l=[]; secoesUteis().forEach(s=>{ const n=s.professo
 function dados(){
   const ciclo=cicloDe(S.anoN);
   const anoTxt = S.anoN ? `${S.anoN}.º ano (${ciclo})` : '';
-  const progs = S.servicos.map(s=>({nome:s.nome.trim(),itens:s.itens.split('\n').map(l=>l.trim()).filter(Boolean)})).filter(p=>p.nome||p.itens.length);
   const grupo=S.conjunto?S.alunos.map(a=>({...a,nome:a.nome.trim()})).filter(a=>a.nome||a.bem.trim()||a.melhorar.trim()):[];
   const alunoTxt=S.conjunto?juntar(grupo.map(a=>a.nome).filter(Boolean)):S.aluno.trim();
   const curto=S.conjunto?juntar(grupo.map(a=>a.nome.split(' ')[0]).filter(Boolean)):S.aluno.trim().split(' ')[0];
-  const apoio=ehApoio(), plano=ehPlano(), porDisc=apoio&&!S.conjunto;
+  const apoio=ehApoio(), plano=ehPlano(), porDisc=apoio;
   const profs=porDisc?profsApoio():[];
   const discTxt=porDisc?juntar(secoesUteis().map(s=>s.nome.trim()).filter(Boolean)):S.disciplina.trim();
   const periodo=(apoio||plano)?[dataPT(S.data),dataPT(S.dataFim)].filter(Boolean).join(' a '):dataPT(S.data);
@@ -642,8 +588,7 @@ function dados(){
     partida:limpar(S.partida),objetivos:objetivosUteis(),profs,periodo,conjunto:S.conjunto,grupo,curto,aluno:alunoTxt,ano:anoTxt,disciplina:discTxt,data:dataPT(S.data),
     professor:porDisc?juntar(profs):S.professor.trim(),
     multi:porDisc?true:S.multi,bem:S.bem,melhorar:S.melhorar,secoes:secoesUteis(),
-    feedback:S.feedback,plano:S.plano.map(limpar).filter(Boolean),progs,notaServicos:limpar(S.notaServicos),
-    promo:S.promoOn&&(S.promoTitulo.trim()||S.promoTexto.trim())?{titulo:S.promoTitulo.trim(),texto:S.promoTexto}:null};
+    feedback:S.feedback,plano:S.plano.map(limpar).filter(Boolean),};
 }
 
 function montar(d){
@@ -687,10 +632,10 @@ function montar(d){
     r.pages.forEach(p=>p.push({t:'tx',s:'Próximo Parágrafo · Plano de objetivos'+(d.revisao?' · revisão':''),x:PAGE_W/2,y:28,font:'Manrope',size:8,color:T.FAINT,align:'center'}));
     return r;
   }
-  if(d.conjunto && d.grupo.length){
+  if(d.conjunto && !d.apoio && d.grupo.length){
     por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que correu bem',d.grupo.map(a=>[a.nome||'Aluno',a.bem])),0);
     por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que ficou por trabalhar',d.grupo.map(a=>[a.nome||'Aluno',a.melhorar])),7);
-  } else if(!d.conjunto && d.multi && d.secoes.length){
+  } else if(d.multi && d.secoes.length){
     const rot=s=>{ const n=s.nome.trim()||'Disciplina', pr=(s.professor||'').trim(); return pr?n+' · '+pr:n; };
     por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,'O que correu bem',d.secoes.map(s=>[rot(s),s.bem])),0);
     por((rr,yy)=>blocoMulti(rr,x,yy,CONTENT_W,d.apoio?'O que falta consolidar':'O que ficou por trabalhar',d.secoes.map(s=>[rot(s),s.melhorar])),7);
@@ -703,11 +648,6 @@ function montar(d){
     por((rr,yy)=>ofertaBloco(rr,x,yy,CONTENT_W),7);
     por((rr,yy)=>ctaBloco(rr,x,yy,CONTENT_W,d.curto,d.professor),7);
   }
-  if(d.progs.length){
-    if(!topo) y-=5;
-    por((rr,yy)=>servicos(rr,x,yy,CONTENT_W,d.progs,d.notaServicos),7);
-  }
-  if(d.promo) por((rr,yy)=>promo(rr,x,yy,CONTENT_W,d.promo.titulo,d.promo.texto),10);
 
   r.pages.forEach(p=>p.push({t:'tx',s:'Próximo Parágrafo · '+(d.apoio?'Relatório de apoio':'Relatório de aula experimental'),x:PAGE_W/2,y:28,font:'Manrope',size:8,color:T.FAINT,align:'center'}));
   return r;
@@ -783,7 +723,7 @@ function aplicarModo(){
   document.querySelectorAll('[data-rev]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.rev==='1')===!!S.revisao)));
   $('#h2Feedback').textContent = pl?'Mensagem para a família':'Feedback e conselho';
   $('#lbFeedback').textContent = pl?'O que queremos que a família saiba sobre este plano':'Mensagem para a família';
-  const porDisc = ap && !c;
+  const porDisc = ap;
   $('#fDisc').hidden = porDisc;
   $('#fProf').hidden = porDisc;
   $('#h2Como').textContent = ap?'Como correu o apoio':'Como correu a aula';
@@ -792,7 +732,7 @@ function aplicarModo(){
     : 'Escreve só o que foi trabalhado na aula, de forma clara para a família.';
   $('#alunoUm').hidden=c; $('#alunosGrupo').hidden=!c; $('#segMulti').hidden=c||porDisc;
   const multi = porDisc || S.multi;
-  $('#single').hidden=c||multi; $('#multi').hidden=c||!multi; $('#grupoComo').hidden=!c;
+  $('#single').hidden=multi||c&&!porDisc; $('#multi').hidden=!multi; $('#grupoComo').hidden=!c||porDisc;
 }
 function desenharGrupo(){
   const A=S.alunos;
@@ -834,7 +774,7 @@ function desenharObjetivos(){
     + `<button type="button" class="link" id="addObj">Adicionar objetivo</button>`;
 }
 function desenharMulti(){
-  const ap=ehApoio()&&!S.conjunto, multi=ap||S.multi;
+  const ap=ehApoio(), multi=ap||S.multi;
   $('#single').hidden=multi; $('#multi').hidden=!multi;
   document.querySelectorAll('[data-multi]').forEach(b=>b.setAttribute('aria-pressed',String((b.dataset.multi==='1')===S.multi)));
   $('#multi').innerHTML = S.secoes.map((s,i)=>`
@@ -847,31 +787,6 @@ function desenharMulti(){
       <label class="f"><span>O que correu bem</span><textarea data-sec="${i}" data-f="bem">${esc(s.bem)}</textarea></label>
       <label class="f" style="margin-bottom:0"><span>${ap?'O que falta consolidar':'O que ficou por trabalhar'}</span><textarea data-sec="${i}" data-f="melhorar">${esc(s.melhorar)}</textarea></label>
     </div>`).join('') + `<button type="button" class="link" id="addSec">Adicionar disciplina</button>`;
-}
-function opcoesCatalogo(){
-  const g=grupoDe(S.anoN); if(!g) return [];
-  const disc=S.disciplina.trim()||'(disciplina)';
-  const progs=CATALOGO[g].map(p=>({key:p.key,label:p.nome.replace(/ \(.*\)$/,''),preco:p.preco,nome:p.nome,itens:p.itens}));
-  const banco=(g==='sec'?BANCO.sec:BANCO.basico).map(b=>({key:b.key,label:b.label,preco:b.preco,nome:'Banco de horas',
-    itens:[`Explicações ${b.tipo} em ${disc}: ${b.precos}`,'Horas válidas durante 3 meses']}));
-  return progs.concat(banco);
-}
-function desenharServicos(){
-  const ops=opcoesCatalogo();
-  $('#svcHint').textContent = ops.length ? `Preços para o ${cicloDe(S.anoN)}. Escolhe até 3; podes editar o texto depois.` : 'Escolhe o ano para veres os programas e preços.';
-  const cheio=S.servicos.length>=3;
-  $('#catalog').innerHTML=ops.map(o=>{
-    const on=S.servicos.some(s=>s.key===o.key);
-    const dis=!on&&cheio;
-    return `<label class="cat${dis?' dis':''}"><input type="checkbox" data-cat="${o.key}" ${on?'checked':''} ${dis?'disabled':''}><span>${esc(o.label)}</span><span class="p">${esc(o.preco)}</span></label>`;
-  }).join('');
-  $('#svcList').innerHTML=S.servicos.map((s,i)=>`
-    <div class="svc">
-      <label class="f"><span>Nome no relatório</span><input type="text" data-svc="${i}" data-f="nome" value="${esc(s.nome)}" autocomplete="off"></label>
-      <label class="f" style="margin-bottom:4px"><span>Tópicos <em>(um por linha)</em></span><textarea data-svc="${i}" data-f="itens">${esc(s.itens)}</textarea></label>
-      <button type="button" class="link danger" data-delsvc="${i}">Remover do relatório</button>
-    </div>`).join('');
-  $('#addSvc').hidden=cheio;
 }
 function escreverCampos(){
   document.querySelectorAll('[data-k]').forEach(el=>{ const k=el.dataset.k; if(el.type==='checkbox') el.checked=!!S[k]; else el.value=S[k]??''; el.classList.remove('missing'); });
@@ -890,18 +805,11 @@ form.addEventListener('input',e=>{
   if(el.dataset.plano!==undefined){ S.plano[+el.dataset.plano]=el.value; }
   if(el.dataset.sec!==undefined){ S.secoes[+el.dataset.sec][el.dataset.f]=el.value; }
   if(el.dataset.obj!==undefined){ S.objetivos[+el.dataset.obj][el.dataset.f]=el.value; }
-  if(el.dataset.svc!==undefined){ S.servicos[+el.dataset.svc][el.dataset.f]=el.value; }
   marcarAlterado(); agendarPrev();
 });
 form.addEventListener('change',e=>{
   const el=e.target;
   if(el.dataset.obj!==undefined){ S.objetivos[+el.dataset.obj][el.dataset.f]=el.value; marcarAlterado(); agendarPrev(); return; }
-  if(el.dataset.cat){
-    const key=el.dataset.cat;
-    if(el.checked){ const o=opcoesCatalogo().find(x=>x.key===key); if(o) S.servicos.push({key,nome:o.nome,itens:o.itens.join('\n')}); }
-    else S.servicos=S.servicos.filter(s=>s.key!==key);
-    desenharServicos(); marcarAlterado(); agendarPrev();
-  }
 });
 form.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
@@ -914,8 +822,6 @@ form.addEventListener('click',e=>{
   else if(b.dataset.delal!==undefined){ S.alunos.splice(+b.dataset.delal,1); desenharGrupo(); }
   else if(b.id==='addSec'){ S.secoes.push(novaSecao()); desenharMulti(); }
   else if(b.dataset.delsec!==undefined){ S.secoes.splice(+b.dataset.delsec,1); desenharMulti(); }
-  else if(b.dataset.delsvc!==undefined){ S.servicos.splice(+b.dataset.delsvc,1); desenharServicos(); }
-  else if(b.id==='addSvc'){ S.servicos.push({key:'outro'+(++uid),nome:'',itens:''}); desenharServicos(); }
   else if(b.id==='btnProximo'){ S=vazio(); exportado=false; escreverCampos(); $('#done').hidden=true; mostrarInicio(); return; }
   else return;
   marcarAlterado(); agendarPrev();
@@ -969,6 +875,10 @@ $('#ficheiroPlano').addEventListener('change',e=>{
   e.target.value='';
 });
 
+window.addEventListener('beforeunload',e=>{
+  if(!$('#inicio').hidden) return;
+  if(temConteudo() && !exportado){ e.preventDefault(); e.returnValue=''; }
+});
 function marcarAlterado(){ if(exportado){ exportado=false; } }
 function temConteudo(){ const v=vazio(); return JSON.stringify({...S,data:''})!==JSON.stringify({...v,data:''}); }
 function recomecar(){
@@ -997,7 +907,11 @@ function emFalta(){
     ['feedback','feedback e conselho']];
   req.forEach(([k,n])=>{ if(!String(S[k]??'').trim()){ f.push(n); document.querySelector(`[data-k="${k}"]`)?.classList.add('missing'); } });
   if(ap && S.data && S.dataFim && S.dataFim<S.data){ f.push('uma data de fim posterior à de início'); document.querySelector('[data-k="dataFim"]')?.classList.add('missing'); }
-  if(ap && !S.conjunto){
+  if(ap){
+    if(S.conjunto){
+      const g=S.alunos.filter(a=>a.nome.trim());
+      if(g.length<2) f.push('pelo menos dois alunos');
+    }
     const ss=secoesUteis();
     if(!ss.length || ss.some(s=>!s.nome.trim()||!s.professor.trim()||!s.bem.trim()||!s.melhorar.trim())) f.push('disciplina, professor(a) e textos de cada disciplina');
     return f;
@@ -1058,7 +972,8 @@ $('#btnPdf').addEventListener('click',async()=>{
 $('#btnEnviar').addEventListener('click',async()=>{
   const blob=gerarBlob(); if(!blob) return;
   const file=new File([blob],nomeFicheiro(),{type:'application/pdf'});
-  try{ await navigator.share({files:[file],title:'Relatório de aula experimental',text:`Relatório da aula experimental de ${dados().aluno}.`}); concluido(); }
+  const t=ehPlano()?'Plano de objetivos':(ehApoio()?'Relatório de apoio':'Relatório de aula experimental');
+  try{ await navigator.share({files:[file],title:t,text:`${t} de ${dados().aluno}.`}); concluido(); }
   catch(e){ if(e&&e.name==='AbortError') return; toast('Não foi possível abrir o envio. Descarrega o PDF e envia-o a partir do teu email.'); }
 });
 
